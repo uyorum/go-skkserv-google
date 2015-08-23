@@ -1,34 +1,60 @@
 package main
 
 import (
-	"github.com/akiym/go-skkserv"
-	"code.google.com/p/go.text/encoding/japanese"
-	"code.google.com/p/go.text/transform"
 	"encoding/json"
+	"flag"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"io/ioutil"
-	"strings"
-	"flag"
 	"strconv"
+	"strings"
+
+	"code.google.com/p/go.text/encoding/japanese"
+	"code.google.com/p/go.text/transform"
+	"github.com/akiym/go-skkserv"
+	"github.com/uyorum/go-skk-dictionary"
 )
 
-var portNum *int
-var dics []string
+var port_num *int
+var dictionary_path_list []string
 
 func init() {
-	portNum = flag.Int("p", 1178, "Port number skkserv uses")
+	port_num = flag.Int("p", 1178, "Port number skkserv uses")
 	flag.Parse()
-	dics = flag.Args()
+	dictionary_path_list = flag.Args()
 }
 
-type GoogleIMESKK struct{}
+type GoogleIMESKK struct {
+	d *skkdictionary.SkkDictionary
+}
 
 func (s *GoogleIMESKK) Request(text string) ([]string, error) {
-	words, err := Transliterate(text)
-	if err != nil {
-		return nil, err
+	var words []string
+	var err error
+
+	if skkdictionary.IsOkuriAri(text + " ") {
+		str := s.d.Search(text + " ")
+		if str == "" {
+			return []string{""}, nil
+		}
+		words = strings.Split(str[1:len(str)-1], "/")
+	} else {
+		text, err = eucjp_to_utf8(text)
+		if err != nil {
+			return nil, err
+		}
+		words, err = TransliterateWithGoogle(text)
+		if err != nil {
+			return nil, err
+		}
+		for i, word := range words {
+			words[i], err = utf8_to_eucjp(word)
+			if err != nil {
+				words[i] = ""
+			}
+		}
 	}
+
 	return words, nil
 }
 
@@ -48,11 +74,7 @@ func eucjp_to_utf8(str string) (string, error) {
 	return string(ret), err
 }
 
-func Transliterate(text string) (words []string, err error) {
-	text, err = eucjp_to_utf8(text)
-	if err != nil {
-		return nil, err
-	}
+func TransliterateWithGoogle(text string) (words []string, err error) {
 	v := url.Values{"langpair": {"ja-Hira|ja"}, "text": {text + ","}}
 	resp, err := http.Get("http://www.google.com/transliterate?" + v.Encode())
 	if err != nil {
@@ -65,16 +87,12 @@ func Transliterate(text string) (words []string, err error) {
 		return nil, err
 	}
 	for _, v := range w[0][1].([]interface{}) {
-		word := v.(string)
-		result, err := utf8_to_eucjp(word)
-		if err == nil {
-			words = append(words, result)
-		}
+		words = append(words, v.(string))
 	}
 	return words, nil
 }
 
 func main() {
-	var server = skkserv.NewServer(":" + strconv.Itoa(*portNum), &GoogleIMESKK{})
+	var server = skkserv.NewServer(":"+strconv.Itoa(*port_num), &GoogleIMESKK{skkdictionary.NewSkkDictionary(dictionary_path_list[0])})
 	server.Run()
 }
