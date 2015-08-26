@@ -35,7 +35,7 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 	if skkdictionary.IsOkuriAri(text + " ") {
 		str := s.d.Search(text + " ")
 		if str == "" {
-			return []string{""}, nil
+			return nil, nil
 		}
 		words = strings.Split(str[1:len(str)-1], "/")
 	} else {

@@ -30,6 +30,7 @@ var tests_for_googleime = []TestStringGoogle{
 var tests_for_request = []TestString{
 	{"1じしょ \n", "1/辞書/地所/自署/字書/じしょ/\n"},
 	{"1わたs ", "1/渡/\n"},
+	{"1わあたs ", "4わあたs\n"},
 }
 
 func TestTransliterateWithGoogle(t *testing.T) {
