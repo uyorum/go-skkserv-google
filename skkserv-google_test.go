@@ -39,8 +39,10 @@ func TestTransliterateWithGoogle(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error at query.")
 		}
-		if resp[0] != test.response[0] {
-			t.Errorf("Unexpected response: %s", resp)
+		for i, word := range resp {
+			if word != test.response[i] {
+				t.Errorf("Unexpected response: %s", word)
+			}
 		}
 	}
 }
