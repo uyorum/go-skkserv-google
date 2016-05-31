@@ -3,20 +3,23 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 
-	"code.google.com/p/go.text/encoding/japanese"
-	"code.google.com/p/go.text/transform"
 	"github.com/akiym/go-skkserv"
 	"github.com/uyorum/go-skk-dictionary"
+	"golang.org/x/text/encoding/japanese"
 )
 
 var port_num *int
 var dictionary_path_list []string
+
+// UTF-8 to EUCJP
+var encoder = japanese.EUCJP.NewEncoder()
+// EUCJP to UTF-8
+var decoder = japanese.EUCJP.NewDecoder()
 
 func init() {
 	port_num = flag.Int("p", 1178, "Port number skkserv uses")
@@ -39,7 +42,7 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 		}
 		words = strings.Split(str[1:len(str)-1], "/")
 	} else {
-		text, err = eucjp_to_utf8(text)
+		text, err = decoder.String(text)
 		if err != nil {
 			return nil, err
 		}
@@ -48,7 +51,7 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 			return nil, err
 		}
 		for i, word := range words {
-			words[i], err = utf8_to_eucjp(word)
+			words[i], err = encoder.String(word)
 			if err != nil {
 				words[i] = ""
 			}
@@ -56,22 +59,6 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 	}
 
 	return words, nil
-}
-
-func utf8_to_eucjp(str string) (string, error) {
-	ret, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(str), japanese.EUCJP.NewEncoder()))
-	if err != nil {
-		return "", err
-	}
-	return string(ret), err
-}
-
-func eucjp_to_utf8(str string) (string, error) {
-	ret, err := ioutil.ReadAll(transform.NewReader(strings.NewReader(str), japanese.EUCJP.NewDecoder()))
-	if err != nil {
-		return "", err
-	}
-	return string(ret), err
 }
 
 func TransliterateWithGoogle(text string) (words []string, err error) {

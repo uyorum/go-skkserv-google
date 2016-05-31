@@ -59,10 +59,10 @@ func TestRequest(t *testing.T) {
 	}
 	defer conn.Close()
 	for _, test := range tests_for_request {
-		word, _ := utf8_to_eucjp(test.request)
+		word, _ := encoder.String(test.request)
 		fmt.Fprintf(conn, word)
 		resp, _ := bufio.NewReader(conn).ReadString('\n')
-		test.response, _ = utf8_to_eucjp(test.response)
+		test.response, _ = encoder.String(test.response)
 		if resp != test.response {
 			t.Errorf("Unexpected response: %s", resp)
 		}
