@@ -1,6 +1,11 @@
-.PHONY: test prepare
+.PHONY: test get-deps
+
+all: test
 
 SKK_JISYO ?= http://openlab.jp/skk/dic/SKK-JISYO.L.gz
+
+get-deps:
+	go get -v -u ./...
 
 test: SKK-JISYO.L
 	go test -v ./...
