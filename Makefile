@@ -3,7 +3,7 @@
 SKK_JISYO ?= http://openlab.jp/skk/dic/SKK-JISYO.L.gz
 
 test: SKK-JISYO.L
-	go test .
+	go test -v ./...
 
 SKK-JISYO.L:
 	wget ${SKK_JISYO}
