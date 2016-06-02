@@ -18,6 +18,7 @@ var dictionary_path_list []string
 
 // UTF-8 to EUCJP
 var encoder = japanese.EUCJP.NewEncoder()
+
 // EUCJP to UTF-8
 var decoder = japanese.EUCJP.NewDecoder()
 
@@ -33,6 +34,7 @@ type GoogleIMESKK struct {
 
 func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 	var words []string
+	var text_u string
 	var err error
 
 	if skkdictionary.IsOkuriAri(text + " ") {
@@ -42,14 +44,23 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 		}
 		words = strings.Split(str[1:len(str)-1], "/")
 	} else {
-		text, err = decoder.String(text)
+		text_u, err = decoder.String(text)
 		if err != nil {
 			return nil, err
 		}
-		words, err = TransliterateWithGoogle(text)
-		if err != nil {
-			return nil, err
+		words, err = TransliterateWithGoogle(text_u)
+
+		// Failed to communicate with server (may be offline)
+		// use skk dictionary
+		if len(words) == 0 || err != nil {
+			str := s.d.Search(text + " ")
+			if str == "" {
+				return nil, nil
+			}
+			words = strings.Split(str[1:len(str)-1], "/")
+			return words, nil
 		}
+
 		for i, word := range words {
 			words[i], err = encoder.String(word)
 			if err != nil {

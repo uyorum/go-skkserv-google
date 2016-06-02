@@ -35,10 +35,12 @@ var tests_for_request = []TestString{
 
 func TestTransliterateWithGoogle(t *testing.T) {
 	for _, test := range tests_for_googleime {
+		fmt.Println(test.request)
 		resp, err := TransliterateWithGoogle(test.request)
 		if err != nil {
 			t.Errorf("Error at query.")
 		}
+		fmt.Println(resp)
 		for i, word := range resp {
 			if word != test.response[i] {
 				t.Errorf("Unexpected response: %s", word)
@@ -59,9 +61,11 @@ func TestRequest(t *testing.T) {
 	}
 	defer conn.Close()
 	for _, test := range tests_for_request {
+		fmt.Println(test.request)
 		word, _ := encoder.String(test.request)
 		fmt.Fprintf(conn, word)
 		resp, _ := bufio.NewReader(conn).ReadString('\n')
+		fmt.Println(decoder.String(resp))
 		test.response, _ = encoder.String(test.response)
 		if resp != test.response {
 			t.Errorf("Unexpected response: %s", resp)
