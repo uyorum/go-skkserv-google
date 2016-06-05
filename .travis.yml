@@ -1,7 +1,9 @@
 language: go
-
 go:
   - 1.6
   - tip
-
 install: make get-deps
+notifications:
+  email: false
+  slack:
+    secure: BuISHo+4r46UL9++QHD2GPBGClPaJTi4qkrLFysNRCwgOItsHvYz3dn72UAlHIx5eTcYubDk1BluMbUxC+O2g34iHVEr8H/HrQh4eKBz3UJlY9ZRqu8nrXmRNiSGivfcmLVqJOMXlLK4SkGPccHOidbRc+bvMxn5iTJjQuXjkmah0KYwAfVbjEe7AlHC15QCD6EBe/apGsnrHjXNMHMgIaasYqXvrfeSx3ViBYWQUnW1S2+3tx64TdpgU7a3eRm1jMkhWBQjunw6rlOioPT/VvdvBbaYY3IGQN4W78ToY05/UncnBiFchqT7P07QPYSTorEQL84OghsIMG1A2kKfN8UYtqR3mGYW26ttTxrpCuiPcoJ8/7A57n+2UGITpkSw+vvl06zl6D/z/ITOSgbD4Lbh4dw5W6nkZTBMfv+FrqBP1G3mVpamADPMHp870wlaFKve9QdiVtYwG4ILhvrCcaKbUeuUdyDishcwW30NQSzq9pn2MtpPqoxPj1SeFXL5HHL5nUOVE0i6BqR6N0oX5z+RibYSyDtjcbIHng3UJ1A6B5oMrrG0tCKpaMsNgwEtBl4Ruf6yL5cAF5z2mw1oqGh4V/k6h5EWzEuqVtQXhc4nAgiPWz7tc/x+qzg+Ngnenr8kolvHmTeUu0b7QciS99kUTxaO2pmWNiNAYbkot9Y=
