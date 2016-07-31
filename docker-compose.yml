@@ -1,0 +1,8 @@
+version: '2'
+services:
+  skkserv:
+    image: uyorum/skkserv-google
+    container_name: skkserv
+    ports:
+      - 127.0.0.1:1178:1178
+    restart: always
