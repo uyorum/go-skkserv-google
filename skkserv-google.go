@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 
@@ -23,8 +25,17 @@ var encoder = japanese.EUCJP.NewEncoder()
 var decoder = japanese.EUCJP.NewDecoder()
 
 func init() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, `Usage of %s:
+  %s [OPTIONS] /path/to/SKK-JISYO.L
+Options
+`, os.Args[0], os.Args[0])
+		flag.PrintDefaults()
+	}
+
 	port_num = flag.Int("p", 1178, "Port number skkserv uses")
 	flag.Parse()
+
 	dictionary_path_list = flag.Args()
 }
 
@@ -91,6 +102,11 @@ func TransliterateWithGoogle(text string) (words []string, err error) {
 }
 
 func main() {
+	if len(dictionary_path_list) == 0 {
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	var server = skkserv.NewServer(":"+strconv.Itoa(*port_num), &GoogleIMESKK{skkdictionary.NewSkkDictionary(dictionary_path_list[0])})
 	server.Run()
 }
