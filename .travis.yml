@@ -9,7 +9,7 @@ install: make get-deps
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ] && go version | grep 'go1.6'; then
       make docker;
-      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker push uyorum/skkserv-google;
     fi
 notifications:
