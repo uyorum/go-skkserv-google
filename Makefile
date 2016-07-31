@@ -1,17 +1,18 @@
 .PHONY: test get-deps
 
-## Prepare and Run tests
-all: test
-
 SKK_JISYO ?= http://openlab.jp/skk/dic/SKK-JISYO.L.gz
 
-## Install dependencies
-get-deps:
-	go get -v -u ./...
-
 ## Run tests
-test: SKK-JISYO.L
+test:
 	go test -v ./...
+
+## Build a binary
+build:
+	go build skkserv-google.go
+
+## Install dependencies
+get-deps: SKK-JISYO.L
+	go get -v -u ./...
 
 ## Download SKK-JISYO.L
 SKK-JISYO.L:
