@@ -6,6 +6,23 @@ A SKK server using Google conversion API.
 This uses Google API only when "okuri-nasi" and when "okuri-ari" this usues SKK dictionary file.
 
 ## How to use
-1. go build
-1. `path/to/your/build -p <portnum> path/to/SKK-JISYO.L`
 
+``` shell
+$ make SKK-JISYO.L
+$ make get-deps
+$ make build
+$ ./skkserv-google ./SKK-JISYO.L
+```
+
+### Options
+
+``` shell
+-p int
+      Port number skkserv uses (default 1178)
+```
+
+### Run in Docker
+
+``` shell
+$ docker run -d -p 127.0.0.1:1178:1178 uyorum/skkserv-google
+```
