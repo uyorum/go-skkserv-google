@@ -23,6 +23,13 @@ type TestString struct {
 	response string
 }
 
+type TestStringLog struct {
+	request  string
+	response []string
+	api      bool
+	log      string
+}
+
 var tests_for_googleime = []TestStringGoogle{
 	{"かんすうがたげんご", []string{"関数型言語", "かんすうがたげんご", "カンスウガタゲンゴ", "ｶﾝｽｳｶﾞﾀｹﾞﾝｺﾞ"}},
 }
@@ -31,6 +38,20 @@ var tests_for_request = []TestString{
 	{"1じしょ \n", "1/辞書/地所/自署/字書/自書/\n"},
 	{"1わたs ", "1/渡/\n"},
 	{"1わあたs ", "4わあたs\n"},
+}
+
+var tests_for_log = []TestStringLog{
+	{"じしょ", []string{"辞書", "地所", "自署", "字書", "自書"}, true, "{\"api\": {\"じしょ\": [\"辞書\", \"地所\", \"自署\", \"字書\", \"自書\"]}}"},
+	{"わたs", []string{"渡"}, false, "{\"jisyo\": {\"わたs\": [\"渡\"]}}"},
+}
+
+func TestLog(t *testing.T) {
+	for _, test := range tests_for_log {
+		log := Log(test.request, test.response, test.api)
+		if log != test.log {
+			t.Errorf("Unexpected message: %s\nExpected: %s", log, test.log)
+		}
+	}
 }
 
 func TestTransliterateWithGoogle(t *testing.T) {

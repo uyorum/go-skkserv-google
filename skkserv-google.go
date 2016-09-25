@@ -101,6 +101,20 @@ func TransliterateWithGoogle(text string) (words []string, err error) {
 	return words, nil
 }
 
+func Log(request string, response []string, api bool) (log string) {
+	if api {
+		log = "{\"api\": {\""
+	} else {
+		log = "{\"jisyo\": {\""
+	}
+
+	response_list := strings.Join(response, "\", \"")
+	log = log + request + "\": [\"" + response_list + "\"]}}"
+
+	fmt.Println(log)
+	return log
+}
+
 func main() {
 	if len(dictionary_path_list) == 0 {
 		flag.Usage()
