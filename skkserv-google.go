@@ -108,8 +108,14 @@ func Log(request string, response []string, api bool) (log string) {
 		log = "{\"jisyo\": {\""
 	}
 
-	response_list := strings.Join(response, "\", \"")
-	log = log + request + "\": [\"" + response_list + "\"]}}"
+	var response_list string
+	if len(response) == 0 {
+		response_list = ""
+	} else {
+		response_list = "\"" + strings.Join(response, "\", \"") + "\""
+	}
+
+	log = log + request + "\": [" + response_list + "]}}"
 
 	fmt.Println(log)
 	return log

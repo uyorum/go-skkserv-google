@@ -43,6 +43,7 @@ var tests_for_request = []TestString{
 var tests_for_log = []TestStringLog{
 	{"じしょ", []string{"辞書", "地所", "自署", "字書", "自書"}, true, "{\"api\": {\"じしょ\": [\"辞書\", \"地所\", \"自署\", \"字書\", \"自書\"]}}"},
 	{"わたs", []string{"渡"}, false, "{\"jisyo\": {\"わたs\": [\"渡\"]}}"},
+	{"わあたs", []string{}, false, "{\"jisyo\": {\"わあたs\": []}}"},
 }
 
 func TestLog(t *testing.T) {
