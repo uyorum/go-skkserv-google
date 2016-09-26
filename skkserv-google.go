@@ -16,6 +16,7 @@ import (
 )
 
 var port_num *int
+var verbose *bool
 var dictionary_path_list []string
 
 // UTF-8 to EUCJP
@@ -34,6 +35,7 @@ Options
 	}
 
 	port_num = flag.Int("p", 1178, "Port number skkserv uses")
+	verbose = flag.Bool("v", false, "Print request and respons to stdout")
 	flag.Parse()
 
 	dictionary_path_list = flag.Args()
@@ -44,9 +46,12 @@ type GoogleIMESKK struct {
 }
 
 func (s *GoogleIMESKK) Request(text string) ([]string, error) {
-	var words []string
+	var words, words_u []string
 	var text_u string
 	var err error
+
+	// Whether used Google IME API
+	api := false
 
 	if skkdictionary.IsOkuriAri(text + " ") {
 		str := s.d.Search(text + " ")
@@ -59,27 +64,45 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		words, err = TransliterateWithGoogle(text_u)
-
-		// Failed to communicate with server (may be offline)
-		// use skk dictionary
-		if len(words) == 0 || err != nil {
+		words_u, err = TransliterateWithGoogle(text_u)
+		if len(words_u) == 0 || err != nil {
+			// Failed to communicate with server (may be offline)
+			// use skk dictionary
 			str := s.d.Search(text + " ")
 			if str == "" {
 				return nil, nil
 			}
 			words = strings.Split(str[1:len(str)-1], "/")
-			return words, nil
-		}
-
-		for i, word := range words {
-			words[i], err = encoder.String(word)
-			if err != nil {
-				words[i] = ""
+		} else {
+			api = true
+			for _, word_u := range words_u {
+				word, err := encoder.String(word_u)
+				if err != nil {
+					word = ""
+				}
+				words = append(words, word)
 			}
 		}
 	}
 
+	if *verbose {
+		go func() {
+			if !api {
+				for _, word := range words {
+					word_u, err := decoder.String(word)
+					if err != nil {
+						word_u = ""
+					}
+					words_u = append(words_u, word_u)
+				}
+				text_u, err = decoder.String(text)
+				if err != nil {
+					return
+				}
+			}
+			Log(text_u, words_u, api)
+		}()
+	}
 	return words, nil
 }
 
