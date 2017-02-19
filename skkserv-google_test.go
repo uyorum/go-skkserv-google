@@ -1,14 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"net"
-	"os"
 	"testing"
-
-	"github.com/akiym/go-skkserv"
-	"github.com/uyorum/go-skk-dictionary"
 )
 
 const DICTIONARY_FILENAME = "SKK-JISYO.L"
@@ -71,26 +65,26 @@ func TestTransliterateWithGoogle(t *testing.T) {
 	}
 }
 
-func TestRequest(t *testing.T) {
-	port_num := ":55100"
-	pwd, _ := os.Getwd()
-	dictionary_path := pwd + "/" + DICTIONARY_FILENAME
-	var server = skkserv.NewServer(port_num, &GoogleIMESKK{skkdictionary.NewSkkDictionary(dictionary_path)})
-	go server.Run()
-	conn, err := net.Dial("tcp", "localhost"+port_num)
-	if err != nil {
-		t.Errorf("Failed to connect to skkserv")
-	}
-	defer conn.Close()
-	for _, test := range tests_for_request {
-		fmt.Println(test.request)
-		word, _ := encoder.String(test.request)
-		fmt.Fprintf(conn, word)
-		resp, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Println(decoder.String(resp))
-		test.response, _ = encoder.String(test.response)
-		if resp != test.response {
-			t.Errorf("Unexpected response: %s", resp)
-		}
-	}
-}
+// func TestReturnTrans(t *testing.T) {
+// 	port := ":55100"
+// 	pwd, _ := os.Getwd()
+// 	dictionary_path := pwd + "/" + DICTIONARY_FILENAME
+// 	var server = skkserv.NewServer(port_num, &GoogleIMESKK{skkdictionary.NewSkkDictionary(dictionary_path)})
+// 	go server.Run()
+// 	conn, err := net.Dial("tcp", "localhost"+port_num)
+// 	if err != nil {
+// 		t.Errorf("Failed to connect to skkserv")
+// 	}
+// 	defer conn.Close()
+// 	for _, test := range tests_for_request {
+// 		fmt.Println(test.request)
+// 		word, _ := encoder.String(test.request)
+// 		fmt.Fprintf(conn, word)
+// 		resp, _ := bufio.NewReader(conn).ReadString('\n')
+// 		fmt.Println(decoder.String(resp))
+// 		test.response, _ = encoder.String(test.response)
+// 		if resp != test.response {
+// 			t.Errorf("Unexpected response: %s", resp)
+// 		}
+// 	}
+// }

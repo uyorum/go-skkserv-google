@@ -7,15 +7,17 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 
-	"github.com/akiym/go-skkserv"
 	"github.com/uyorum/go-skk-dictionary"
+	"github.com/uyorum/go-skkserv-google/skkserv"
 	"golang.org/x/text/encoding/japanese"
 )
 
-var port_num *int
+const AppName = "skkserv-google"
+const AppVersion = "0.0.1"
+
+var port_num *string
 var verbose *bool
 var dictionary_path_list []string
 
@@ -34,7 +36,7 @@ Options
 		flag.PrintDefaults()
 	}
 
-	port_num = flag.Int("p", 1178, "Port number skkserv uses")
+	port_num = flag.String("p", "1178", "Port number skkserv uses")
 	verbose = flag.Bool("v", false, "Print request and respons to stdout")
 	flag.Parse()
 
@@ -45,10 +47,12 @@ type GoogleIMESKK struct {
 	d *skkdictionary.SkkDictionary
 }
 
-func (s *GoogleIMESKK) Request(text string) ([]string, error) {
+func (s *GoogleIMESKK) ReturnTrans(b []byte) ([]byte, error) {
 	var words, words_u []string
 	var text_u string
 	var err error
+
+	text := skkserv.ParseRequest(b)
 
 	// Whether used Google IME API
 	api := false
@@ -56,7 +60,7 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 	if skkdictionary.IsOkuriAri(text + " ") {
 		str := s.d.Search(text + " ")
 		if str == "" {
-			return nil, nil
+			return skkserv.BuildResponse([]string{}), nil
 		}
 		words = strings.Split(str[1:len(str)-1], "/")
 	} else {
@@ -70,7 +74,7 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 			// use skk dictionary
 			str := s.d.Search(text + " ")
 			if str == "" {
-				return nil, nil
+				return skkserv.BuildResponse([]string{}), nil
 			}
 			words = strings.Split(str[1:len(str)-1], "/")
 		} else {
@@ -103,7 +107,7 @@ func (s *GoogleIMESKK) Request(text string) ([]string, error) {
 			Log(text_u, words_u, api)
 		}()
 	}
-	return words, nil
+	return skkserv.BuildResponse(words), nil
 }
 
 func TransliterateWithGoogle(text string) (words []string, err error) {
@@ -150,6 +154,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	var server = skkserv.NewServer(":"+strconv.Itoa(*port_num), &GoogleIMESKK{skkdictionary.NewSkkDictionary(dictionary_path_list[0])})
-	server.Run()
+	s := skkserv.NewSkkServ(AppName, AppVersion, &GoogleIMESKK{skkdictionary.NewSkkDictionary(dictionary_path_list[0])})
+	s.Port = *port_num
+	s.Run()
 }
