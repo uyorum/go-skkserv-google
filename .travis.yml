@@ -2,16 +2,21 @@ language: go
 go:
   - 1.8
   - tip
+
 sudo: required
+
 services:
   - docker
+
 install: make get-deps
+
 after_success:
-  - if [ "$TRAVIS_BRANCH" == "master" ] && go version | grep 'go1.8'; then
+  - if [[ $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" && $(go version) == *'1.8'* ]]; then
       make docker;
       docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker push uyorum/skkserv-google;
     fi
+
 notifications:
   email: false
   slack:
